@@ -1,0 +1,27 @@
+{
+  "name": "svg2pntr",
+  "version": "1.0.0",
+  "description": "Convert an SVG file into a series of pntr drawing functions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konsumer/svg2pntr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/konsumer/svg2pntr/issues"
+  },
+  "homepage": "https://github.com/konsumer/svg2pntr#readme",
+  "bin": {
+    "svg2pntr": "./svg2pntr.mjs"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.10"
+  }
+}
