@@ -426,11 +426,11 @@ function ptsToC(pts) {
   return pts.map(p => `{${Math.round(p.x)},${Math.round(p.y)}}`).join(',')
 }
 
-function emitSubpath(lines, subpath, fill, stroke, idx) {
+function emitSubpath(lines, subpath, fill, stroke, idx, id) {
   const { pts, closed } = subpath
   if (pts.length < 2) return
   const n = pts.length
-  lines.push(`    {`)
+  lines.push(`    {${id ? ` // #${id}` : ''}`)
   lines.push(`        pntr_vector _p${idx}[] = {${ptsToC(pts)}};`)
   if (fill)   lines.push(`        pntr_draw_polygon_fill(dst, _p${idx}, ${n}, ${colorToC(fill)});`)
   if (stroke) lines.push(`        pntr_draw_${closed ? 'polygon' : 'polyline'}(dst, _p${idx}, ${n}, ${colorToC(stroke)});`)
@@ -454,13 +454,16 @@ function processElement(el, matrix, inheritedStyle, lines, counter) {
   const fill = getFillColor(style)
   const stroke = getStrokeColor(style)
   const num = name => parseFloat((el.getAttribute && el.getAttribute(name)) || '0') || 0
+  const id = el.getAttribute && el.getAttribute('id')
 
   switch (tag) {
     case 'path': {
       const d = el.getAttribute('d')
       if (!d) break
+      let first = true
       for (const sp of flattenPath(parsePathData(d), localMatrix)) {
-        emitSubpath(lines, sp, fill, stroke, counter.i++)
+        emitSubpath(lines, sp, fill, stroke, counter.i++, first ? id : null)
+        first = false
       }
       break
     }
@@ -486,7 +489,7 @@ function processElement(el, matrix, inheritedStyle, lines, counter) {
       } else {
         pts = [[x,y],[x+w,y],[x+w,y+h],[x,y+h]].map(([px,py]) => matTransform(localMatrix,px,py))
       }
-      emitSubpath(lines, { pts, closed: true }, fill, stroke, counter.i++)
+      emitSubpath(lines, { pts, closed: true }, fill, stroke, counter.i++, id)
       break
     }
     case 'circle': {
@@ -495,7 +498,7 @@ function processElement(el, matrix, inheritedStyle, lines, counter) {
       const c = matTransform(localMatrix, cx, cy)
       const [a,b] = localMatrix
       const cr = Math.round(r * Math.sqrt(a*a+b*b))
-      lines.push(`    {`)
+      lines.push(`    {${id ? ` // #${id}` : ''}`)
       if (fill)   lines.push(`        pntr_draw_circle_fill(dst, ${Math.round(c.x)}, ${Math.round(c.y)}, ${cr}, ${colorToC(fill)});`)
       if (stroke) lines.push(`        pntr_draw_circle(dst, ${Math.round(c.x)}, ${Math.round(c.y)}, ${cr}, ${colorToC(stroke)});`)
       lines.push(`    }`)
@@ -508,7 +511,7 @@ function processElement(el, matrix, inheritedStyle, lines, counter) {
       const [a,b,cc,d] = localMatrix
       const erx = Math.round(rx * Math.sqrt(a*a+b*b))
       const ery = Math.round(ry * Math.sqrt(cc*cc+d*d))
-      lines.push(`    {`)
+      lines.push(`    {${id ? ` // #${id}` : ''}`)
       if (fill)   lines.push(`        pntr_draw_ellipse_fill(dst, ${Math.round(c.x)}, ${Math.round(c.y)}, ${erx}, ${ery}, ${colorToC(fill)});`)
       if (stroke) lines.push(`        pntr_draw_ellipse(dst, ${Math.round(c.x)}, ${Math.round(c.y)}, ${erx}, ${ery}, ${colorToC(stroke)});`)
       lines.push(`    }`)
@@ -518,17 +521,17 @@ function processElement(el, matrix, inheritedStyle, lines, counter) {
       const p1=matTransform(localMatrix,num('x1'),num('y1'))
       const p2=matTransform(localMatrix,num('x2'),num('y2'))
       const c = stroke || fill
-      if (c) lines.push(`    pntr_draw_line(dst, ${Math.round(p1.x)}, ${Math.round(p1.y)}, ${Math.round(p2.x)}, ${Math.round(p2.y)}, ${colorToC(c)});`)
+      if (c) lines.push(`    pntr_draw_line(dst, ${Math.round(p1.x)}, ${Math.round(p1.y)}, ${Math.round(p2.x)}, ${Math.round(p2.y)}, ${colorToC(c)});${id ? ` // #${id}` : ''}`)
       break
     }
     case 'polyline': {
       const pts = ptsFromPointsAttr(el.getAttribute('points') || '', localMatrix)
-      if (pts.length >= 2) emitSubpath(lines, { pts, closed: false }, fill, stroke, counter.i++)
+      if (pts.length >= 2) emitSubpath(lines, { pts, closed: false }, fill, stroke, counter.i++, id)
       break
     }
     case 'polygon': {
       const pts = ptsFromPointsAttr(el.getAttribute('points') || '', localMatrix)
-      if (pts.length >= 2) emitSubpath(lines, { pts, closed: true }, fill, stroke, counter.i++)
+      if (pts.length >= 2) emitSubpath(lines, { pts, closed: true }, fill, stroke, counter.i++, id)
       break
     }
     case 'g':
