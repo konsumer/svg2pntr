@@ -1,6 +1,6 @@
 {
   "name": "svg2pntr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert an SVG file into a series of pntr drawing functions.",
   "main": "index.js",
   "scripts": {
