@@ -9,7 +9,7 @@ npx -y svg2pntr <input.svg> [output.h]
 
 You can see an [example](./example/).
 
-YOu can also use it in your code:
+You can also use it in your code:
 
 ```js
 import { readFile } from 'node:fs/promises'
