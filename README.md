@@ -1,6 +1,6 @@
 # svg2pntr
 
-Convert an SVG file into a series of C pntr drawing functions.
+Convert an SVG file into a series of C [pntr](https://github.com/RobLoach/pntr) drawing functions.
 
 
 ```sh
