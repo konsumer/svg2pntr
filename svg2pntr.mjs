@@ -2,7 +2,7 @@
 
 import { readFile, writeFile } from 'node:fs/promises'
 import { basename, extname } from 'node:path'
-import { svgToPntr } from './index.js'
+import svgToPntr from './index.js'
 
 const args = process.argv.slice(2)
 if (args.length < 1) {
